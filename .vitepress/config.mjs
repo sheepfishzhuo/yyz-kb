@@ -17,8 +17,8 @@ export default defineConfig({
     nav: [
       { text: '首页', link: '/' },
       { text: '示例页', link: '/markdown-examples' },
-      { text: '点云学习', link: '/point-cloud/' },
-      { text: 'Python学习', items: [
+      { text: '点云', link: '/point-cloud/' },
+      { text: 'Python', items: [
         { text: '基础', link: '/python/base/' },
         { text: '进阶', link: '/python/advanced/' },
       ] },
