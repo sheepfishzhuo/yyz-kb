@@ -1,37 +1,37 @@
-# .github > workflows > deploy.yml
-name: Deploy
+name: 部署VitePress
 
 on:
-   push:
-      branches:
-         - main
-
+  push:
+    branches:
+      - main
 jobs:
-   deploy:
-      runs-on: ubuntu-latest
-      steps:
-         - uses: actions/checkout@v4
-           with:
-              fetch-depth: 0
-         - uses: actions/setup-node@v4
-           with:
-              node-version: 20
-              cache: npm
-         - run: npm install --frozen-lockfile
+  build-and-deploy:
+    runs-on: ubuntu-latest
 
-         - name: Build
-           run: npm run docs:build
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+        with:
+          ref: docs # 这一步检查 docs 代码
 
-         - name: Deploy
-            # 将构建产物 commit 到一个分支上，用于发布静态站点资源
-            # https://github.com/peaceiris/actions-gh-pages
-            #不要将peaceiris改为自己的仓库名，我单纯的以为这个需要改成自己的仓库名，部署上去就build失败了，需引用该仓库的配置
-           uses: peaceiris/actions-gh-pages@v3
-           with:
-              # Github 会在 workflow 中自动生成 GIHUBT_TOKEN，用于认证 workflow 的运行
-              github_token: ${{ secrets.GITHUB_TOKEN }}
-              # 静态资源目录设置
-              publish_dir: docs/.vitepress/dist
-              # 默认发布到 gh-pages 分支上，可以指定特定的发布分支（不能选拉取代码的分支）
-              publish_branch: gh-pages
-              full_commit_message: ${{ github.event.head_commit.message }}
+      - name: Setup Node.js and pnpm
+        uses: actions/setup-node@v3
+        with:
+          node-version: '20.10.0' # 设置 nodejs 的版本
+          
+      - name: Install pnpm
+        run: npm install -g pnpm # 全局安装 pnpm
+
+      - name: Install dependencies
+        run: pnpm install # 使用 pnpm 安装依赖
+
+      - name: Build VitePress
+        run: pnpm run docs:build # 这里是打包 vitepress 命令
+
+      - name: Deploy to GitHub Pages
+        uses: peaceiris/actions-gh-pages@v3
+        with:
+          github_token: ${{ secrets.PAT_TOKEN }} # 这一步很重要，单独看下面的大步骤，主要是用来给该脚本一些仓库权限
+          publish_dir: .vitepress/dist # 指定该文件夹中的 dist 
+          publish_branch: gh-pages # 推送到关联仓库的 gh-pages 分支
+          dotfiles: true  # 包括在提交中，即使被 .gitignore 文件忽略
